@@ -14,9 +14,9 @@ psql -h localhost -d <db-name> -U <username> -W
 ```
 
 ```
-# create database for todo app
+-- create database for todo app
 CREATE DATABASE todo_db;
-# create user
+-- create user
 CREATE USER todo_user WITH PASSWORD 'password';
 ALTER ROLE todo_user SET client_encoding TO 'utf8';
 ALTER ROLE todo_user SET default_transaction_isolation TO 'read committed';
@@ -59,3 +59,14 @@ GRANT ALL ON SEQUENCES TO todo_user;
 python app.py
 
 Visit http://127.0.0.1:5000/ in your browser.
+
+
+## .env
+```
+# database credentials
+DATABASE_URL="postgresql://todo_user:todo_pass@localhost/todo_db"
+
+# docker-compose flyway db migration
+DB_PASSWORD=dbsecret123
+TODO_PASSWORD=todo_pass
+```

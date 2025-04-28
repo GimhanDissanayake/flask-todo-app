@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:alpinecustom
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  flyway:
+    image: flyway/flyway:custom
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/flyway/migrations
+    command: >
+      -url=jdbc:postgresql://db:5432/postgres 
+      -user=postgres 
+      -password=${DB_PASSWORD} 
+      -placeholders.todoPassword=${TODO_PASSWORD}
+      -locations=filesystem:/flyway/migrations
+      migrate
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
+    environment:
+      - DATABASE_URL=postgresql://todo_user:${TODO_PASSWORD}@db:5432/todo_db
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"  # Format is "host_port:container_port"
+
+volumes:
+  postgres_data:

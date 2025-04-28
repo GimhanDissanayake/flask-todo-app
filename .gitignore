@@ -4,3 +4,5 @@ ToDo
 venv/
 .env
 __pycache__/
+
+q-dev*
